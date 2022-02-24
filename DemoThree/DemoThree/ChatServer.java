@@ -19,7 +19,8 @@ import java.util.concurrent.*;
  * logging. Another is to accept a lot of fun commands, like Slack.
  */
 public class ChatServer {
-
+	static int count;
+	static int port;
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
 
@@ -28,10 +29,13 @@ public class ChatServer {
 
     public static void main(String[] args) throws Exception {
         System.out.println("The chat server is running...");
+        System.out.println("Current number of users: " + count);
         ExecutorService pool = Executors.newFixedThreadPool(500);
         try (ServerSocket listener = new ServerSocket(59001)) {
             while (true) {
                 pool.execute(new Handler(listener.accept()));
+                //int port = ServerSocket.getLocalPort();
+                count++;
             }
         }
     }
@@ -107,12 +111,15 @@ public class ChatServer {
                 }
                 if (name != null) {
                     System.out.println(name + " is leaving");
+                    --count;
+                    System.out.println("Number of members in server: " + count);
                     names.remove(name);
                     for (PrintWriter writer : writers) {
                         writer.println("MESSAGE " + name + " has left");
                     }
                 }
                 try { socket.close(); } catch (IOException e) {}
+                
             }
         }
     }

@@ -2,6 +2,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -32,7 +33,8 @@ public class ChatClient {
     JFrame frame = new JFrame("Chatter");
     JTextField textField = new JTextField(50);
     JTextArea messageArea = new JTextArea(16, 50);
-
+    static InetAddress client;
+    static InetAddress port;
     /**
      * Constructs the client by laying out the GUI and registering a listener with the
      * textfield so that pressing Return in the listener sends the textfield contents
@@ -42,7 +44,7 @@ public class ChatClient {
      */
     public ChatClient(String serverAddress) {
         this.serverAddress = serverAddress;
-
+        
         textField.setEditable(false);
         messageArea.setEditable(false);
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
@@ -91,6 +93,8 @@ public class ChatClient {
     }
 
     public static void main(String[] args) throws Exception {
+    	client = InetAddress.getLocalHost();   	
+    	System.out.println("Current IP: "+ client);
         if (args.length != 1) {
             System.err.println("Pass the server IP as the sole command line argument");
             return;
