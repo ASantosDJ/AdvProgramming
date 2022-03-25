@@ -1,5 +1,8 @@
 import java.io.IOException;
 import java.io.PrintWriter;
+//import java.io.BufferedReader;
+//import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Set;
@@ -20,7 +23,8 @@ import java.util.concurrent.*;
  */
 public class ChatServer {
 	static int count;
-	static int port;
+	public static int port;
+	static InetAddress serverIp;
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
 
@@ -28,14 +32,22 @@ public class ChatServer {
     private static Set<PrintWriter> writers = new HashSet<>();
 
     public static void main(String[] args) throws Exception {
+    	//String input;
+    	
         System.out.println("The chat server is running...");
         System.out.println("Current number of users: " + count);
         ExecutorService pool = Executors.newFixedThreadPool(500);
         try (ServerSocket listener = new ServerSocket(59001)) {
             while (true) {
+            	//	Socket socket = listener.accept();
                 pool.execute(new Handler(listener.accept()));
-                //int port = ServerSocket.getLocalPort();
+                serverIp = InetAddress.getLocalHost();
                 count++;
+                port = listener.getLocalPort();
+                System.out.println(port);
+                //BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                //input = in.readLine();
+                //System.out.println("Client just connected " + input + " to server " + serverIp);
             }
         }
     }
@@ -48,6 +60,9 @@ public class ChatServer {
         private Socket socket;
         private Scanner in;
         private PrintWriter out;
+		private String targetUser;
+		private String message;
+        
 
         /**
          * Constructs a handler thread, squirreling away the socket. All the interesting
@@ -55,6 +70,7 @@ public class ChatServer {
          * server's main method, so this has to be as short as possible.
          */
         public Handler(Socket socket) {
+        	
             this.socket = socket;
         }
 
@@ -65,6 +81,7 @@ public class ChatServer {
          * broadcasts them.
          */
         public void run() {
+            
             try {
                 in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
@@ -83,13 +100,13 @@ public class ChatServer {
                         }
                     }
                 }
-
                 // Now that a successful name has been chosen, add the socket's print writer
                 // to the set of all writers so this client can receive broadcast messages.
                 // But BEFORE THAT, let everyone else know that the new person has joined!
                 out.println("NAMEACCEPTED " + name);
                 for (PrintWriter writer : writers) {
                     writer.println("MESSAGE " + name + " has joined");
+                    writer.println("MESSAGE "+"Number of members in server: " + count);
                 }
                 writers.add(out);
 
@@ -99,9 +116,19 @@ public class ChatServer {
                     if (input.toLowerCase().startsWith("/quit")) {
                         return;
                     }
-                    for (PrintWriter writer : writers) {
-                        writer.println("MESSAGE " + name + ": " + input);
-                    }
+                   else if (input.toLowerCase().startsWith("/msg")) {
+                    	   String args[] = input.split(" ");
+                		   if (args.length == 2) {
+                			   targetUser = args[1];
+                			   message = args[2];
+                			   for (PrintWriter writer: writers) {
+                    			   writer.println("MESSAGE " + " Private message to " + targetUser + " : " + message);
+                			   }
+                		   }
+                   }
+                   for (PrintWriter writer : writers) {
+                	   writer.println("MESSAGE " + name + ": " + input);
+                	}
                 }
             } catch (Exception e) {
                 System.out.println(e);
@@ -116,6 +143,7 @@ public class ChatServer {
                     names.remove(name);
                     for (PrintWriter writer : writers) {
                         writer.println("MESSAGE " + name + " has left");
+                        writer.println("MESSAGE "+"Number of members in server: " + count);
                     }
                 }
                 try { socket.close(); } catch (IOException e) {}

@@ -1,12 +1,15 @@
-import java.awt.event.ActionEvent;
+	import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.Scanner;
 
 import java.awt.BorderLayout;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -15,7 +18,7 @@ import javax.swing.JTextField;
 
 /**
  * A simple Swing-based client for the chat server. Graphically it is a frame with a text
- * field for entering messages and a textarea to see the whole dialog.
+ * field for entering messages and a text area to see the whole dialog.
  *
  * The client follows the following Chat Protocol. When the server sends "SUBMITNAME" the
  * client replies with the desired screen name. The server will keep sending "SUBMITNAME"
@@ -33,6 +36,8 @@ public class ChatClient {
     JFrame frame = new JFrame("Chatter");
     JTextField textField = new JTextField(50);
     JTextArea messageArea = new JTextArea(16, 50);
+    JTextArea memberArea = new JTextArea(1,50);
+    JButton sendButton = new JButton("Send");
     static InetAddress client;
     static InetAddress port;
     /**
@@ -47,8 +52,13 @@ public class ChatClient {
         
         textField.setEditable(false);
         messageArea.setEditable(false);
+        memberArea.setEditable(false);
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
         frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
+        //Send button - textField.getRootPane().add(sendButton);
+        //Member list
+        frame.getContentPane().add(new JScrollPane(memberArea), BorderLayout.EAST);
+        
         frame.pack();
 
         // Send on enter then clear to prepare for next message
@@ -72,8 +82,10 @@ public class ChatClient {
     private void run() throws IOException {
         try {
             Socket socket = new Socket(serverAddress, 59001);
+            SocketAddress clientIp = socket.getLocalSocketAddress();
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
+            out.print(clientIp);
 
             while (in.hasNextLine()) {
                 String line = in.nextLine();
@@ -93,8 +105,6 @@ public class ChatClient {
     }
 
     public static void main(String[] args) throws Exception {
-    	client = InetAddress.getLocalHost();   	
-    	System.out.println("Current IP: "+ client);
         if (args.length != 1) {
             System.err.println("Pass the server IP as the sole command line argument");
             return;
