@@ -45,14 +45,11 @@ public class ChatClient {
     public ChatClient(String serverAddress) {
         this.serverAddress = serverAddress;
         
-<<<<<<< Updated upstream
         textField.setEditable(false);
         messageArea.setEditable(false);
-=======
         textField.setEditable(false); //Where the user types messages 
         messageArea.setEditable(false); // Where all messages are seen
         memberArea.setEditable(false);//Where a list of members currently connect is seen
->>>>>>> Stashed changes
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
         frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
         frame.pack();
@@ -80,11 +77,9 @@ public class ChatClient {
             Socket socket = new Socket(serverAddress, 59001);
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
-<<<<<<< Updated upstream
-=======
+
             // ClientIP address
             System.out.print("Client IP/Port: " + clientIp);
->>>>>>> Stashed changes
 
             while (in.hasNextLine()) {
                 String line = in.nextLine();

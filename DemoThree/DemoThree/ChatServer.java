@@ -23,13 +23,10 @@ import java.util.concurrent.*;
  */
 public class ChatServer {
 	static int count;
-<<<<<<< Updated upstream
 	static int port;
-=======
 	private static int port;
 	static InetAddress serverIp;
 	public static boolean haveCoordinator;
->>>>>>> Stashed changes
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
 
@@ -41,11 +38,8 @@ public class ChatServer {
     }
 
     public static void main(String[] args) throws Exception {
-<<<<<<< Updated upstream
-=======
     	//ChatServer serverCoordinator = new ChatServer();
     	
->>>>>>> Stashed changes
         System.out.println("The chat server is running...");
         System.out.println("Current number of users: " + count);
         ExecutorService pool = Executors.newFixedThreadPool(500);
@@ -54,15 +48,12 @@ public class ChatServer {
                 pool.execute(new Handler(listener.accept()));
                 //int port = ServerSocket.getLocalPort();
                 count++;
-<<<<<<< Updated upstream
-=======
                 port = listener.getLocalPort();
                 System.out.println("Server Port: " + port);
                 System.out.println("Server IP: " + serverIp);
                 //BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 //input = in.readLine();
                 //System.out.println("Client just connected " + input + " to server " + serverIp);
->>>>>>> Stashed changes
             }
         }
     }
@@ -75,11 +66,8 @@ public class ChatServer {
         private Socket socket;
         private Scanner in;
         private PrintWriter out;
-<<<<<<< Updated upstream
-=======
         Object serverCoordinator;
         
->>>>>>> Stashed changes
 
         /**
          * Constructs a handler thread, squirreling away the socket. All the interesting
@@ -122,13 +110,10 @@ public class ChatServer {
                 // But BEFORE THAT, let everyone else know that the new person has joined!
                 out.println("NAMEACCEPTED " + name);
                 for (PrintWriter writer : writers) {
-<<<<<<< Updated upstream
                     writer.println("MESSAGE " + name + " has joined");
-=======
                     writer.println("MESSAGE " + "[SERVER] " + name + " has joined");
                     writer.println("MESSAGE " +"[SERVER] " + "Number of members in server: " + count);
                   
->>>>>>> Stashed changes
                 }
                 writers.add(out);
                 
@@ -141,11 +126,10 @@ public class ChatServer {
                     if (input.toLowerCase().startsWith("/quit")) {
                         return;
                     }
-<<<<<<< Updated upstream
                     for (PrintWriter writer : writers) {
                         writer.println("MESSAGE " + name + ": " + input);
                     }
-=======
+
                    else if (input.toLowerCase().startsWith("/msg")) {
                 	   String args[]= input.split(",");
                 	   if (args.length == 3) {
@@ -159,7 +143,6 @@ public class ChatServer {
 	                   for (PrintWriter writer : writers) {
 	                	   writer.println("MESSAGE " + name + ": " + input);
 	                   }
->>>>>>> Stashed changes
                 }
              } catch (Exception e) {
             	System.out.println(e);
@@ -174,13 +157,10 @@ public class ChatServer {
                     names.remove(name);
                     findCoordinator(serverCoordinator);
                     for (PrintWriter writer : writers) {
-<<<<<<< Updated upstream
                         writer.println("MESSAGE " + name + " has left");
-=======
                     	writer.println("MESSAGE " + "[SERVER] " + name + " has left");
                     	writer.println("MESSAGE "+"[SERVER] Number of members in server: " + count);
                     	printUsers();
->>>>>>> Stashed changes
                     }
                 }
                 try { socket.close(); } catch (IOException e) {}                
