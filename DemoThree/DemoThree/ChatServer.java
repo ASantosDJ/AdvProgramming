@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Set;
@@ -23,7 +24,7 @@ import java.util.concurrent.*;
  */
 public class ChatServer {
 	static int count;
-	static int port;
+	//static int port;
 	private static int port;
 	static InetAddress serverIp;
 	public static boolean haveCoordinator;
@@ -126,11 +127,7 @@ public class ChatServer {
                     if (input.toLowerCase().startsWith("/quit")) {
                         return;
                     }
-                    for (PrintWriter writer : writers) {
-                        writer.println("MESSAGE " + name + ": " + input);
-                    }
-
-                   else if (input.toLowerCase().startsWith("/msg")) {
+                    else if (input.toLowerCase().startsWith("/msg")) {
                 	   String args[]= input.split(",");
                 	   if (args.length == 3) {
                 		   String targetUser = args[1];
