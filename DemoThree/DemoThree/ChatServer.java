@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -36,6 +37,10 @@ public class ChatServer {
     
     static Set<String> getUsers() {
     	return ChatServer.names;
+    }
+    static String getTimestamp() {
+    	String timestamp = new Date().toString();
+   	 	return timestamp;
     }
 
     public static void main(String[] args) throws Exception {
@@ -142,7 +147,7 @@ public class ChatServer {
                 	   }
                    } else 
 	                   for (PrintWriter writer : writers) {
-	                	   writer.println("MESSAGE " + name + ": " + input);
+	                	   writer.println("MESSAGE " + getTimestamp() +" ["+ name + "]" + ": " + input);
 	                   }
                 }
              } catch (Exception e) {
@@ -189,13 +194,13 @@ public class ChatServer {
             		System.out.println(serverCoordinator+" "+haveCoordinator);
             	}
             	if (count >= 2 && haveCoordinator == true) {
-            	//	System.out.println("A new member has connected: " + name);
+            		System.out.println("A new member has connected: " + name);
             		System.out.println(haveCoordinator);
             	} 
             	if (count > 1 && haveCoordinator == false) {
 	            	for (PrintWriter writer : writers) {
 	            		writer.println("MESSAGE " + "[SERVER] Unable to make contact with coordinator, selecting new coordinator!");
-	            		System.out.println(haveCoordinator);
+	            	System.out.println(haveCoordinator);
 	            		}
 	            	selectCoordinator(serverCoordinator); //Select new coordinator
             	} else if (count == 0) {
@@ -214,9 +219,11 @@ public class ChatServer {
 	            	if (serverCoordinator == null) {
 	            		haveCoordinator = false;
 	            		serverCoordinator = null;
+	            		break;
 	            	} else if (out == null) {
 	            		haveCoordinator = false;
 	            		serverCoordinator = null;
+	            		break;
 	            	}
             	} */
             }
@@ -234,7 +241,7 @@ public class ChatServer {
             	serverCoordinator = randomName;
 
              }
-             
+
          }
 
 

@@ -86,7 +86,7 @@ public class ChatClient {
             SocketAddress clientIp = socket.getLocalSocketAddress();
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
-            out.print(clientIp);
+            //1out.print(clientIp);
             // ClientIP address
             System.out.print("Client IP/Port: " + clientIp);
 
