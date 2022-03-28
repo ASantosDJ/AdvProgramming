@@ -47,10 +47,12 @@ public class ChatServer {
         try (ServerSocket listener = new ServerSocket(59001)) {
             while (true) {
                 pool.execute(new Handler(listener.accept()));
+                serverIp = InetAddress.getLocalHost();
                 //int port = ServerSocket.getLocalPort();
                 count++;
                 port = listener.getLocalPort();
                 System.out.println("Server Port: " + port);
+                System.out.println(port);
                 System.out.println("Server IP: " + serverIp);
                 //BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 //input = in.readLine();
@@ -67,6 +69,8 @@ public class ChatServer {
         private Socket socket;
         private Scanner in;
         private PrintWriter out;
+	//	private String targetUser;
+		//private String message;
         Object serverCoordinator;
         
 

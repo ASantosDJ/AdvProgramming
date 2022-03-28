@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.Scanner;
 
 import java.awt.BorderLayout;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -33,6 +36,8 @@ public class ChatClient {
     JFrame frame = new JFrame("Chatter");
     JTextField textField = new JTextField(50);
     JTextArea messageArea = new JTextArea(16, 50);
+    JTextArea memberArea = new JTextArea(1,50);
+    JButton sendButton = new JButton("Send");
     static InetAddress client;
     static InetAddress port;
     /**
@@ -52,6 +57,9 @@ public class ChatClient {
         memberArea.setEditable(false);//Where a list of members currently connect is seen
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
         frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
+        //Send button - textField.getRootPane().add(sendButton);
+        //Member list
+        frame.getContentPane().add(new JScrollPane(memberArea), BorderLayout.EAST);
         frame.pack();
 
         // Send on enter then clear to prepare for next message
@@ -75,9 +83,10 @@ public class ChatClient {
     private void run() throws IOException {
         try {
             Socket socket = new Socket(serverAddress, 59001);
+            SocketAddress clientIp = socket.getLocalSocketAddress();
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
-
+            out.print(clientIp);
             // ClientIP address
             System.out.print("Client IP/Port: " + clientIp);
 
