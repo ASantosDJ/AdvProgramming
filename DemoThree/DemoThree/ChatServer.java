@@ -1,12 +1,12 @@
 import java.io.IOException;
 import java.io.PrintWriter;
-//import java.io.BufferedReader;
-//import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
@@ -23,31 +23,46 @@ import java.util.concurrent.*;
  */
 public class ChatServer {
 	static int count;
-	public static int port;
+<<<<<<< Updated upstream
+	static int port;
+=======
+	private static int port;
 	static InetAddress serverIp;
+	public static boolean haveCoordinator;
+>>>>>>> Stashed changes
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
 
      // The set of all the print writers for all the clients, used for broadcast.
     private static Set<PrintWriter> writers = new HashSet<>();
+    
+    static Set<String> getUsers() {
+    	return ChatServer.names;
+    }
 
     public static void main(String[] args) throws Exception {
-    	//String input;
+<<<<<<< Updated upstream
+=======
+    	//ChatServer serverCoordinator = new ChatServer();
     	
+>>>>>>> Stashed changes
         System.out.println("The chat server is running...");
         System.out.println("Current number of users: " + count);
         ExecutorService pool = Executors.newFixedThreadPool(500);
         try (ServerSocket listener = new ServerSocket(59001)) {
             while (true) {
-            	//	Socket socket = listener.accept();
                 pool.execute(new Handler(listener.accept()));
-                serverIp = InetAddress.getLocalHost();
+                //int port = ServerSocket.getLocalPort();
                 count++;
+<<<<<<< Updated upstream
+=======
                 port = listener.getLocalPort();
-                System.out.println(port);
+                System.out.println("Server Port: " + port);
+                System.out.println("Server IP: " + serverIp);
                 //BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 //input = in.readLine();
                 //System.out.println("Client just connected " + input + " to server " + serverIp);
+>>>>>>> Stashed changes
             }
         }
     }
@@ -60,9 +75,11 @@ public class ChatServer {
         private Socket socket;
         private Scanner in;
         private PrintWriter out;
-		private String targetUser;
-		private String message;
+<<<<<<< Updated upstream
+=======
+        Object serverCoordinator;
         
+>>>>>>> Stashed changes
 
         /**
          * Constructs a handler thread, squirreling away the socket. All the interesting
@@ -70,7 +87,6 @@ public class ChatServer {
          * server's main method, so this has to be as short as possible.
          */
         public Handler(Socket socket) {
-        	
             this.socket = socket;
         }
 
@@ -81,10 +97,10 @@ public class ChatServer {
          * broadcasts them.
          */
         public void run() {
-            
             try {
                 in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
+                
 
                 // Keep requesting a name until we get a unique one.
                 while (true) {
@@ -100,55 +116,149 @@ public class ChatServer {
                         }
                     }
                 }
+
                 // Now that a successful name has been chosen, add the socket's print writer
                 // to the set of all writers so this client can receive broadcast messages.
                 // But BEFORE THAT, let everyone else know that the new person has joined!
                 out.println("NAMEACCEPTED " + name);
                 for (PrintWriter writer : writers) {
+<<<<<<< Updated upstream
                     writer.println("MESSAGE " + name + " has joined");
-                    writer.println("MESSAGE "+"Number of members in server: " + count);
+=======
+                    writer.println("MESSAGE " + "[SERVER] " + name + " has joined");
+                    writer.println("MESSAGE " +"[SERVER] " + "Number of members in server: " + count);
+                  
+>>>>>>> Stashed changes
                 }
                 writers.add(out);
-
+                
+                printUsers();
+                findCoordinator(serverCoordinator);
+                
                 // Accept messages from this client and broadcast them.
                 while (true) {
                     String input = in.nextLine();
                     if (input.toLowerCase().startsWith("/quit")) {
                         return;
                     }
+<<<<<<< Updated upstream
+                    for (PrintWriter writer : writers) {
+                        writer.println("MESSAGE " + name + ": " + input);
+                    }
+=======
                    else if (input.toLowerCase().startsWith("/msg")) {
-                    	   String args[] = input.split(" ");
-                		   if (args.length == 2) {
-                			   targetUser = args[1];
-                			   message = args[2];
-                			   for (PrintWriter writer: writers) {
-                    			   writer.println("MESSAGE " + " Private message to " + targetUser + " : " + message);
-                			   }
+                	   String args[]= input.split(",");
+                	   if (args.length == 3) {
+                		   String targetUser = args[1];
+                		   String message = args[2]; 
+                	   for (PrintWriter writer: writers) {
+                		   writer.println("MESSAGE " + "[SERVER] " +"Private message to " + targetUser + " : " + message);
                 		   }
-                   }
-                   for (PrintWriter writer : writers) {
-                	   writer.println("MESSAGE " + name + ": " + input);
-                	}
+                	   }
+                   } else 
+	                   for (PrintWriter writer : writers) {
+	                	   writer.println("MESSAGE " + name + ": " + input);
+	                   }
+>>>>>>> Stashed changes
                 }
-            } catch (Exception e) {
-                System.out.println(e);
-            } finally {
-                if (out != null) {
-                    writers.remove(out);
-                }
-                if (name != null) {
-                    System.out.println(name + " is leaving");
+             } catch (Exception e) {
+            	System.out.println(e);
+             } finally {
+            	if (out != null) {
+            		writers.remove(out);
+            	}
+            	if (name != null) {
+            		System.out.println(name + " is leaving");
                     --count;
                     System.out.println("Number of members in server: " + count);
                     names.remove(name);
+                    findCoordinator(serverCoordinator);
                     for (PrintWriter writer : writers) {
+<<<<<<< Updated upstream
                         writer.println("MESSAGE " + name + " has left");
-                        writer.println("MESSAGE "+"Number of members in server: " + count);
+=======
+                    	writer.println("MESSAGE " + "[SERVER] " + name + " has left");
+                    	writer.println("MESSAGE "+"[SERVER] Number of members in server: " + count);
+                    	printUsers();
+>>>>>>> Stashed changes
                     }
                 }
-                try { socket.close(); } catch (IOException e) {}
-                
+                try { socket.close(); } catch (IOException e) {}                
             }
         }
-    }
-}
+            void printUsers() {
+            	if (count >= 1) {
+	            	for (PrintWriter writer : writers) {
+	            		writer.println("MESSAGE " + "[SERVER] Updated list of connected users: " + ChatServer.getUsers());
+	            	}
+            	} else if (count == 0) {
+            		System.out.print("No connected users");
+            	} else {
+            		System.out.print("Error!");
+            	}
+            }
+            
+            void findCoordinator(Object serverCoordinator) {
+            	if (count == 1) {
+	            	serverCoordinator = name;
+	            	haveCoordinator = true;
+	            	for (PrintWriter writer : writers) {
+	            		writer.println("MESSAGE " + "[SERVER] You have been selected to be the coordinator!");
+	            	}
+            		System.out.println(serverCoordinator+" "+haveCoordinator);
+            	}
+            	if (count >= 2 && haveCoordinator == true) {
+            	//	System.out.println("A new member has connected: " + name);
+            		System.out.println(haveCoordinator);
+            	} 
+            	if (count > 1 && haveCoordinator == false) {
+	            	for (PrintWriter writer : writers) {
+	            		writer.println("MESSAGE " + "[SERVER] Unable to make contact with coordinator, selecting new coordinator!");
+	            		System.out.println(haveCoordinator);
+	            		}
+	            	selectCoordinator(serverCoordinator); //Select new coordinator
+            	} else if (count == 0) {
+            		System.out.println(haveCoordinator);
+            		System.out.println("No users to give the role to.");
+        			haveCoordinator = false;
+        			serverCoordinator = null;
+            	} else if (serverCoordinator == null || out == null) {
+            			haveCoordinator = false;
+            			serverCoordinator = null;
+            	}
+            }
+		        
+       
+            	/*while (true) {
+	            	if (serverCoordinator == null) {
+	            		haveCoordinator = false;
+	            		serverCoordinator = null;
+	            	} else if (out == null) {
+	            		haveCoordinator = false;
+	            		serverCoordinator = null;
+	            	}
+            	} */
+            }
+
+             static void selectCoordinator(Object serverCoordinator) {
+            	List<String> names = new ArrayList<String>(ChatServer.getUsers());
+            	for (PrintWriter writer : writers) {
+            		writer.println ("MESSAGE " + " [SERVER] Randomly selecting a new coordinator...");
+            	}
+            	Random rand = new Random();
+            	String randomName = names.get(rand.nextInt(names.size()));
+            	for (PrintWriter writer : writers) {
+            		writer.println("MESSAGE "  + "[SERVER]"+ randomName + " has been selected as the new coordinator!");
+            	}
+            	serverCoordinator = randomName;
+
+             }
+             
+         }
+
+
+/*
+ * Coordinator role was completely not working - no messages were getting printed - fixed by commenting out the while loop
+ * Coordinator role only would switch if there was 2 users connected to the server - fixed by changing the if statement
+ * Coordinator role automatically changes if there is 3 users connected to the server - no fix atm
+ */
