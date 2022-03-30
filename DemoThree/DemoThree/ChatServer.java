@@ -42,6 +42,8 @@ public class ChatServer {
     	String timestamp = new Date().toString();
    	 	return timestamp;
     }
+    
+    
 
     public static void main(String[] args) throws Exception {
     	//ChatServer serverCoordinator = new ChatServer();
@@ -147,7 +149,7 @@ public class ChatServer {
                 	   }
                    } else 
 	                   for (PrintWriter writer : writers) {
-	                	   writer.println("MESSAGE " + getTimestamp() +" ["+ name + "]" + ": " + input);
+	                	   writer.println("MESSAGE " + "[" + getTimestamp() +" | "+ name + "]" + ": " + input);
 	                   }
                 }
              } catch (Exception e) {
