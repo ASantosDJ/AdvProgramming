@@ -4,12 +4,14 @@ public class MemberInfo {
     private String serverHost;
     private String serverPort;
     private String clientName;
+    private Boolean isCoordinator;
 
-    public MemberInfo(String id, String serverHost, String serverPort, String clientName) {
+    public MemberInfo(String id, String serverHost, String serverPort, String clientName, Boolean isCoordinator) {
         this.id = id;
         this.serverHost = serverHost;
         this.serverPort = serverPort;
         this.clientName = clientName;
+        this.isCoordinator = isCoordinator;
     }
 
     public String getId() {
@@ -43,6 +45,9 @@ public class MemberInfo {
     public void setClientName(String clientName) {
         this.clientName = clientName;
     }
+    public Boolean getIsCoordinator() {
+    	return isCoordinator;
+    }
 
     @Override
     public String toString() {
@@ -51,6 +56,7 @@ public class MemberInfo {
                 ", serverHost='" + serverHost + '\'' +
                 ", serverPort='" + serverPort + '\'' +
                 ", clientName='" + clientName + '\'' +
+                ", Is Coordinator='" + isCoordinator + '\'' +
                 '}';
     }
 }

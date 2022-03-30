@@ -1,9 +1,15 @@
 public class Coordinator {
     private String serverCoordinator;
-    private boolean hasCoordinator;
     
-    public Coordinator (String serverCoordinator, boolean hasCoordinator) {
+    public Coordinator (String serverCoordinator) {
+    	this.serverCoordinator = serverCoordinator;
+    }
     	
+    	public void setServerCoordinator(String serverCoordinator) {
+    		this.serverCoordinator = serverCoordinator;
+    	}
+    	public String getServerCoordinator() {
+    		return serverCoordinator;
     	
     }
 }

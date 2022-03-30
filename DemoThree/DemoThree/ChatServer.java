@@ -43,10 +43,7 @@ public class ChatServer {
    	 	return timestamp;
     }
     
-    
-
     public static void main(String[] args) throws Exception {
-    	//ChatServer serverCoordinator = new ChatServer();
     	
         System.out.println("The chat server is running...");
         System.out.println("Current number of users: " + count);
@@ -76,7 +73,7 @@ public class ChatServer {
         private Socket socket;
         private Scanner in;
         private PrintWriter out;
-	//	private String targetUser;
+        //private String targetUser;
 		//private String message;
         Object serverCoordinator;
         
@@ -129,7 +126,9 @@ public class ChatServer {
                 }
                 writers.add(out);
                 
+                //Print all users connected to the servers
                 printUsers();
+                //findCoordinator
                 findCoordinator(serverCoordinator);
                 
                 // Accept messages from this client and broadcast them.
@@ -147,9 +146,14 @@ public class ChatServer {
                 		   writer.println("MESSAGE " + "[SERVER] " +"Private message to " + targetUser + " : " + message);
                 		   }
                 	   }
+                	   else if (input.toLowerCase().startsWith("/info")) {
+                		   for (PrintWriter writer: writers) {
+                			   writer.println("MESSAGE " + "[SERVER]" + "Server IP/Port: " + serverIp + port + "\n");
+                		   }
+                	   }
                    } else 
 	                   for (PrintWriter writer : writers) {
-	                	   writer.println("MESSAGE " + "[" + getTimestamp() +" | "+ name + "]" + ": " + input);
+	                	   writer.println("MESSAGE " + "[" + getTimestamp() +"] "+ name + ": " + input);
 	                   }
                 }
              } catch (Exception e) {
@@ -187,7 +191,7 @@ public class ChatServer {
             }
             
             void findCoordinator(Object serverCoordinator) {
-            	if (count == 1) {
+            	if (count == 1 && haveCoordinator == false) {
 	            	serverCoordinator = name;
 	            	haveCoordinator = true;
 	            	for (PrintWriter writer : writers) {
@@ -199,10 +203,10 @@ public class ChatServer {
             		System.out.println("A new member has connected: " + name);
             		System.out.println(haveCoordinator);
             	} 
-            	if (count > 1 && haveCoordinator == false) {
+            	if (haveCoordinator == false) {
 	            	for (PrintWriter writer : writers) {
 	            		writer.println("MESSAGE " + "[SERVER] Unable to make contact with coordinator, selecting new coordinator!");
-	            	System.out.println(haveCoordinator);
+	            		System.out.println(haveCoordinator);
 	            		}
 	            	selectCoordinator(serverCoordinator); //Select new coordinator
             	} else if (count == 0) {
@@ -215,35 +219,32 @@ public class ChatServer {
             			serverCoordinator = null;
             	}
             }
-		        
-       
-            	/*while (true) {
-	            	if (serverCoordinator == null) {
-	            		haveCoordinator = false;
-	            		serverCoordinator = null;
-	            		break;
-	            	} else if (out == null) {
-	            		haveCoordinator = false;
-	            		serverCoordinator = null;
-	            		break;
-	            	}
-            	} */
+		       
             }
 
              static void selectCoordinator(Object serverCoordinator) {
             	List<String> names = new ArrayList<String>(ChatServer.getUsers());
             	for (PrintWriter writer : writers) {
-            		writer.println ("MESSAGE " + " [SERVER] Randomly selecting a new coordinator...");
+            		writer.println ("MESSAGE " + "[SERVER] Randomly selecting a new coordinator...");
             	}
             	Random rand = new Random();
             	String randomName = names.get(rand.nextInt(names.size()));
             	for (PrintWriter writer : writers) {
-            		writer.println("MESSAGE "  + "[SERVER]"+ randomName + " has been selected as the new coordinator!");
+            		writer.println("MESSAGE "  + "[SERVER] "+ randomName + " has been selected as the new coordinator!");
             	}
             	serverCoordinator = randomName;
 
              }
-
+             boolean hasUsers() {
+                 if (ChatServer.getUsers() != null ) {
+                	 return true;
+                 }
+				return false;
+			
+				
+             }
+             
+             
          }
 
 

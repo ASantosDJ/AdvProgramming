@@ -44,7 +44,7 @@ public class ChatClient {
     
     static InetAddress client;
     static InetAddress port;
-    private static MemberInfo memberInfo;
+
     /**
      * Constructs the client by laying out the GUI and registering a listener with the
      * textfield so that pressing Return in the listener sends the textfield contents
@@ -52,9 +52,8 @@ public class ChatClient {
      * only becomes editable AFTER the client receives the NAMEACCEPTED message from
      * the server.
      */
-    public ChatClient(String serverAddress, MemberInfo memberInfo) {
+    public ChatClient(String serverAddress) {
         this.serverAddress = serverAddress;
-        ChatClient.memberInfo = memberInfo;
         textField.setEditable(false);
         messageArea.setEditable(false);
         textField.setEditable(false); //Where the user types messages 
@@ -64,13 +63,11 @@ public class ChatClient {
         frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
         //Member list
         frame.getContentPane().add(new JScrollPane(memberArea), BorderLayout.EAST);
-		panel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(panel);
 		panel.setLayout(null);
 
         frame.pack();
         
-        JButton sendButton = new JButton("Send");
+     /*  JButton sendButton = new JButton("Send");
 		sendButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
                 out.println(textField.getText());
@@ -78,7 +75,7 @@ public class ChatClient {
 			}
 		});
 		sendButton.setBounds(162, 81, 109, 23);
-		panel.add(sendButton);
+		panel.add(sendButton);*/
 
         // Send on enter then clear to prepare for next message
         textField.addActionListener(new ActionListener() {
@@ -89,10 +86,6 @@ public class ChatClient {
         });
     }
 
-    private void setContentPane(JPanel panel2) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	private String getName() {
         return JOptionPane.showInputDialog(
@@ -102,7 +95,6 @@ public class ChatClient {
             JOptionPane.PLAIN_MESSAGE
         );
     }
-
     private void run() throws IOException {
         try {
             Socket socket = new Socket(serverAddress, 59001);
@@ -137,7 +129,7 @@ public class ChatClient {
             System.err.println("Pass the server IP as the sole command line argument");
             return;
         }
-        ChatClient client = new ChatClient(args[0], memberInfo);
+        ChatClient client = new ChatClient(args[0]);
         client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         client.frame.setVisible(true);
         client.run();
