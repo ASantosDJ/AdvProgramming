@@ -32,9 +32,9 @@ public class ChatServer {
 	static int count;
 	
 	private static String client;
-	
 	private static int port;
 	static InetAddress serverIp;
+	
 	
 	public static boolean haveCoordinator;
 	
@@ -68,7 +68,6 @@ public class ChatServer {
                 port = listener.getLocalPort();
                 ipPort.add(listener.getLocalSocketAddress().toString());
                 System.out.println("Server Port: " + port);
-                System.out.println(port);
                 System.out.println("Server IP: " + serverIp);
                 //BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 //input = in.readLine();
@@ -86,6 +85,8 @@ public class ChatServer {
         private Socket socket;
         private Scanner in;
         private PrintWriter out;
+        //private String sip;
+        //private String sport;
         //private String targetUser;
 		//private String message;
         Object serverCoordinator;
@@ -120,7 +121,16 @@ public class ChatServer {
                     if (name == null) {
                         return;
                     }
-                    
+                   /* out.print("SUBMITIP");
+                    sip = in.nextLine();
+                    if (sip == null) {
+                    	return;
+                    }
+                    out.print("SUBMITPORT");
+                    sport = in.nextLine();
+                    if (sport == null) {
+                    	return;
+                    }*/
                     synchronized (names) {
                         if (!name.isEmpty() && !names.contains(name)) {
                             names.add(name);
@@ -134,6 +144,7 @@ public class ChatServer {
                 // Now that a successful name has been chosen, add the socket's print writer
                 // to the set of all writers so this client can receive broadcast messages.
                 // But BEFORE THAT, let everyone else know that the new person has joined!
+               
                 out.println("NAMEACCEPTED " + name);
                 for (PrintWriter writer : writers) {
                     writer.println("MESSAGE " + name + " has joined");
@@ -141,6 +152,7 @@ public class ChatServer {
                     writer.println("MESSAGE " +"[SERVER] " + "Number of members in server: " + count);
                   
                 }
+  
                 writers.add(out);
 
                 //Print all users connected to the servers
@@ -161,14 +173,14 @@ public class ChatServer {
                 		   writer.println("MESSAGE " + "[SERVER] " +"Private message to " + targetUser + " : " + message);
                 		   }
                 	   }
-                    } else if (input.toLowerCase().startsWith("/info") && serverCoordinator == name) {
+                    } else if (input.toLowerCase().startsWith("/info")) {
                 		   for (PrintWriter writer: writers) {
                 			   writer.println("MESSAGE " + "[SERVER]" + " Server name/IP: " + serverIp);
                 			   writer.println("MESSAGE " + "[SERVER]" + " Port: " + port + "\n");
                 			   writer.println("MESSAGE " + "[SERVER]" + " List of connected client's IP/Ports:");
                 			   for (int i = 0; i < ipPort.size(); i++) {
                 				   client = ipPort.get(i);
-                				   writer.println("MESSAGE "+ client);
+                				   writer.println("MESSAGE "+" Client " + i +": "+client);
                 			   }   
                 		   }
                    } else 
@@ -187,11 +199,10 @@ public class ChatServer {
                     --count;
                     System.out.println("Number of members in server: " + count);
                     names.remove(name);
-                    findCoordinator(serverCoordinator);
                     for (PrintWriter writer : writers) {
-                        writer.println("MESSAGE " + name + " has left");
                     	writer.println("MESSAGE " + "[SERVER] " + name + " has left");
                     	writer.println("MESSAGE "+"[SERVER] Number of members in server: " + count);
+                    	findCoordinator(serverCoordinator);
                     	printUsers();
                     }
                 }
@@ -210,7 +221,7 @@ public class ChatServer {
             	}
             }
             
-            void findCoordinator(Object serverCoordinator) {
+            boolean findCoordinator(Object serverCoordinator) {
             	if (count == 1 && haveCoordinator == false) {
 	            	serverCoordinator = name;
 	            	haveCoordinator = true;
@@ -223,7 +234,7 @@ public class ChatServer {
             		System.out.println("A new member has connected: " + name);
             		System.out.println(haveCoordinator);
             	} 
-            	if (count>1 && haveCoordinator == false) {
+            	if (haveCoordinator != true) {
 	            	for (PrintWriter writer : writers) {
 	            		writer.println("MESSAGE " + "[SERVER] Unable to make contact with coordinator, selecting new coordinator!");
 	            		System.out.println(haveCoordinator);
@@ -238,6 +249,7 @@ public class ChatServer {
             			haveCoordinator = false;
             			serverCoordinator = null;
             	}
+            	return haveCoordinator;
             }
 		       
             }

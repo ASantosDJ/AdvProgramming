@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 import java.awt.BorderLayout;
 
+import javax.swing.JButton;
 //import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -37,7 +38,7 @@ public class ChatClient {
     JTextField textField = new JTextField(50);
     JTextArea messageArea = new JTextArea(16, 50);
     JTextArea memberArea = new JTextArea(1,50);
-    //JButton sendButton = new JButton("Send");
+    JButton sendButton = new JButton("Send");
     JPanel panel = new JPanel();
     SocketAddress clientAddress;
     String client;
@@ -66,21 +67,19 @@ public class ChatClient {
         memberArea.setEditable(false);//Where a list of members currently connect is seen
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
         frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
-        //Member list
         frame.getContentPane().add(new JScrollPane(memberArea), BorderLayout.EAST);
-		panel.setLayout(null);
-
+        frame.getContentPane().add(sendButton,BorderLayout.EAST);
+        frame.setVisible(true);
         frame.pack();
         
-     /*  JButton sendButton = new JButton("Send");
+        
 		sendButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
                 out.println(textField.getText());
                 textField.setText("");
 			}
 		});
-		sendButton.setBounds(162, 81, 109, 23);
-		panel.add(sendButton);*/
+		
 
         // Send on enter then clear to prepare for next message
         textField.addActionListener(new ActionListener() {
@@ -89,7 +88,6 @@ public class ChatClient {
                 textField.setText("");
             }
         });
-        
     }
 
 	private String getName() {
@@ -100,10 +98,27 @@ public class ChatClient {
             JOptionPane.PLAIN_MESSAGE
         );
     }
+	/*private String getIP() {
+        return JOptionPane.showInputDialog(
+            frame,
+            "Enter an IP Address:",
+            "IP Selection",
+            JOptionPane.PLAIN_MESSAGE
+        );
+    }
+	private String getPort() {
+        return JOptionPane.showInputDialog(
+    		frame,
+            "Enter an port to listen to:",
+            "Port Selection",
+            JOptionPane.PLAIN_MESSAGE
+        );
+	}*/
+	
     private void run() throws IOException {
         try {
             Socket socket = new Socket(serverAddress, 59001);
-            clientAddress = socket.getLocalSocketAddress();
+            clientAddress  = socket.getLocalSocketAddress();
             client = "" + clientAddress;
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
@@ -120,7 +135,11 @@ public class ChatClient {
                     textField.setEditable(true);
                 } else if (line.startsWith("MESSAGE")) {
                     messageArea.append(line.substring(8) + "\n");
-                }
+               /* } else if (line.startsWith("SUBMITIP")) {
+                    out.println(getIP());
+                } else if (line.startsWith("SUBMITPORT")) {
+                	out.println(getPort());
+                */}
             }
         } finally {
             frame.setVisible(false);
