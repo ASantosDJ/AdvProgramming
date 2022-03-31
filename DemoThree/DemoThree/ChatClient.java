@@ -2,21 +2,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Scanner;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JButton;
+//import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 
 /**
  * A simple Swing-based client for the chat server. Graphically it is a frame with a text
@@ -41,9 +39,16 @@ public class ChatClient {
     JTextArea memberArea = new JTextArea(1,50);
     //JButton sendButton = new JButton("Send");
     JPanel panel = new JPanel();
-    
-    static InetAddress client;
-    static InetAddress port;
+    SocketAddress clientAddress;
+    String client;
+   
+    //@Override
+    //public String toString() {
+    	//String[] split = client.split(":");
+    	//String ip = split[0];
+    	//String port = split[1];
+    	//return "IP='" + ip +'\'' + ", port='" + port + '\'' ;
+    //}
 
     /**
      * Constructs the client by laying out the GUI and registering a listener with the
@@ -84,8 +89,8 @@ public class ChatClient {
                 textField.setText("");
             }
         });
+        
     }
-
 
 	private String getName() {
         return JOptionPane.showInputDialog(
@@ -98,12 +103,13 @@ public class ChatClient {
     private void run() throws IOException {
         try {
             Socket socket = new Socket(serverAddress, 59001);
-            SocketAddress clientIp = socket.getLocalSocketAddress();
+            clientAddress = socket.getLocalSocketAddress();
+            client = "" + clientAddress;
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
-            //1out.print(clientIp);
+            //out.print(client);
             // ClientIP address
-            System.out.print("Client IP/Port: " + clientIp);
+            System.out.print("Client IP/Port: " + clientAddress);
 
             while (in.hasNextLine()) {
                 String line = in.nextLine();
@@ -122,9 +128,8 @@ public class ChatClient {
         }
     }
 
+
     public static void main(String[] args) throws Exception {
-    	client = InetAddress.getLocalHost();   	
-    	System.out.println("Current IP: "+ client);
         if (args.length != 1) {
             System.err.println("Pass the server IP as the sole command line argument");
             return;

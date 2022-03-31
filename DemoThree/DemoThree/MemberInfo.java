@@ -1,4 +1,4 @@
-public class MemberInfo {
+public abstract class MemberInfo {
 
     private String id;
     private String serverHost;

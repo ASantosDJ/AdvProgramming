@@ -2,4 +2,13 @@
 /ChatClient.class
 /ChatServer$Handler.class
 /ChatServer.class
-/Handler.class
+/ChatServerTest.class
+/MemberInfo.class
+/ChatClient$2.class
+/Coordinator.class
+/.classpath
+/.gitignore
+/.project
+/Countdown.class
+/Countdown$1.class
+/ChatServer$1.class

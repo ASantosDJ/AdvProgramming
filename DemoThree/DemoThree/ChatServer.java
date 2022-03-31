@@ -1,3 +1,5 @@
+
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -11,6 +13,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+
 
 /**
  * A multithreaded chat room server. When a client connects the server requests a screen
@@ -25,16 +30,21 @@ import java.util.concurrent.*;
  */
 public class ChatServer {
 	static int count;
-	//static int port;
+	
+	private static String client;
+	
 	private static int port;
 	static InetAddress serverIp;
+	
 	public static boolean haveCoordinator;
+	
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
 
      // The set of all the print writers for all the clients, used for broadcast.
     private static Set<PrintWriter> writers = new HashSet<>();
     
+    private static List<String> ipPort = new ArrayList<String>();
     static Set<String> getUsers() {
     	return ChatServer.names;
     }
@@ -47,20 +57,23 @@ public class ChatServer {
     	
         System.out.println("The chat server is running...");
         System.out.println("Current number of users: " + count);
+        
         ExecutorService pool = Executors.newFixedThreadPool(500);
-        try (ServerSocket listener = new ServerSocket(59001)) {
+        try (ServerSocket listener = new ServerSocket(59001,10)) {
             while (true) {
                 pool.execute(new Handler(listener.accept()));
+                listener.setSoTimeout(10*1000);
                 serverIp = InetAddress.getLocalHost();
-                //int port = ServerSocket.getLocalPort();
                 count++;
                 port = listener.getLocalPort();
+                ipPort.add(listener.getLocalSocketAddress().toString());
                 System.out.println("Server Port: " + port);
                 System.out.println(port);
                 System.out.println("Server IP: " + serverIp);
                 //BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 //input = in.readLine();
                 //System.out.println("Client just connected " + input + " to server " + serverIp);
+       
             }
         }
     }
@@ -68,7 +81,7 @@ public class ChatServer {
     /**
      * The client handler task.
      */
-    private static class Handler implements Runnable {
+    private static class Handler implements Runnable  {
         private String name;
         private Socket socket;
         private Scanner in;
@@ -85,9 +98,10 @@ public class ChatServer {
          */
         public Handler(Socket socket) {
             this.socket = socket;
+
         }
 
-        /**
+		/**
          * Services this thread's client by repeatedly requesting a screen name until a
          * unique one has been submitted, then acknowledges the name and registers the
          * output stream for the client in a global set, then repeatedly gets inputs and
@@ -106,13 +120,16 @@ public class ChatServer {
                     if (name == null) {
                         return;
                     }
+                    
                     synchronized (names) {
                         if (!name.isEmpty() && !names.contains(name)) {
                             names.add(name);
                             break;
                         }
                     }
-                }
+                    }
+
+
 
                 // Now that a successful name has been chosen, add the socket's print writer
                 // to the set of all writers so this client can receive broadcast messages.
@@ -125,19 +142,17 @@ public class ChatServer {
                   
                 }
                 writers.add(out);
-                
+
                 //Print all users connected to the servers
                 printUsers();
                 //findCoordinator
                 findCoordinator(serverCoordinator);
-                
-                // Accept messages from this client and broadcast them.
+               
                 while (true) {
                     String input = in.nextLine();
                     if (input.toLowerCase().startsWith("/quit")) {
                         return;
-                    }
-                    else if (input.toLowerCase().startsWith("/msg")) {
+                    } else if (input.toLowerCase().startsWith("/msg")) {
                 	   String args[]= input.split(",");
                 	   if (args.length == 3) {
                 		   String targetUser = args[1];
@@ -146,11 +161,16 @@ public class ChatServer {
                 		   writer.println("MESSAGE " + "[SERVER] " +"Private message to " + targetUser + " : " + message);
                 		   }
                 	   }
-                	   else if (input.toLowerCase().startsWith("/info")) {
+                    } else if (input.toLowerCase().startsWith("/info") && serverCoordinator == name) {
                 		   for (PrintWriter writer: writers) {
-                			   writer.println("MESSAGE " + "[SERVER]" + "Server IP/Port: " + serverIp + port + "\n");
+                			   writer.println("MESSAGE " + "[SERVER]" + " Server name/IP: " + serverIp);
+                			   writer.println("MESSAGE " + "[SERVER]" + " Port: " + port + "\n");
+                			   writer.println("MESSAGE " + "[SERVER]" + " List of connected client's IP/Ports:");
+                			   for (int i = 0; i < ipPort.size(); i++) {
+                				   client = ipPort.get(i);
+                				   writer.println("MESSAGE "+ client);
+                			   }   
                 		   }
-                	   }
                    } else 
 	                   for (PrintWriter writer : writers) {
 	                	   writer.println("MESSAGE " + "[" + getTimestamp() +"] "+ name + ": " + input);
@@ -203,7 +223,7 @@ public class ChatServer {
             		System.out.println("A new member has connected: " + name);
             		System.out.println(haveCoordinator);
             	} 
-            	if (haveCoordinator == false) {
+            	if (count>1 && haveCoordinator == false) {
 	            	for (PrintWriter writer : writers) {
 	            		writer.println("MESSAGE " + "[SERVER] Unable to make contact with coordinator, selecting new coordinator!");
 	            		System.out.println(haveCoordinator);
@@ -239,13 +259,29 @@ public class ChatServer {
                  if (ChatServer.getUsers() != null ) {
                 	 return true;
                  }
-				return false;
-			
-				
+				return false;				
              }
-             
-             
+             static void countdown() { //https://www.delftstack.com/howto/java/countdown-timer-java/
+	             final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	
+	             final Runnable runnable = new Runnable() {
+	                 int countdownStarter = 20;
+	
+	                 public void run() {
+	
+	                    
+	                     countdownStarter--;
+	
+	                     if (countdownStarter < 0) {
+	                         System.out.println("Timer Over!");
+	                         scheduler.shutdown();
+	                     }
+	                 }
+	             };
+	             scheduler.scheduleAtFixedRate(runnable, 0, 1, SECONDS);
+	         }
          }
+
 
 
 /*
